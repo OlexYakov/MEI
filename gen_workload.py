@@ -17,7 +17,9 @@
 
 import sys
 import numpy as np
+import random
 
+np.random.
 # FIXME
 if len(sys.argv) == 8:
     num_procs = int(sys.argv[1])
