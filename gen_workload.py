@@ -17,11 +17,9 @@
 
 import sys
 import numpy as np
-import random
 
-np.random.
 # FIXME
-if len(sys.argv) == 8:
+if len(sys.argv) == 9:
     num_procs = int(sys.argv[1])
     mean_io_bursts = int(sys.argv[2])
     mean_iat = float(sys.argv[3])
@@ -29,6 +27,7 @@ if len(sys.argv) == 8:
     max_CPU = float(sys.argv[5])
     min_IO = float(sys.argv[6])
     max_IO = float(sys.argv[7])
+    seed = int(sys.argv[8])
 elif len(sys.argv) == 1: # default values
     print("# No arguments supplied, using default parameter values.")
     num_procs = 50
@@ -38,9 +37,11 @@ elif len(sys.argv) == 1: # default values
     max_CPU = 2.
     min_IO = 0.3
     max_IO = 0.5
+    seed = 0
 else:
-    raise Exception("The number of arguments should be 7.")
+    raise Exception("The number of arguments should be 8.")
 
+np.random.seed(seed)
 print("# num_procs = %d" % num_procs)
 print("# mean_io_bursts = %g" % mean_io_bursts)
 print("# mean_iat = %d" % mean_iat)
@@ -48,6 +49,7 @@ print("# min_CPU = %g" % min_CPU)
 print("# max_CPU = %g" % max_CPU)
 print("# min_IO = %g" % min_IO)
 print("# max_IO = %g" % max_IO)
+print("# seed = %d" % seed)
 
 t = 0.
 
