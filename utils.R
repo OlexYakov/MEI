@@ -1,3 +1,5 @@
+schedulers = c("FCFS","RR","SJF","SRTF")
+
 load_simulation_data_frames <- function(workload,scheduler) 
 {
   workload_path = paste("outputs_sim/",workload,"/",sep = "")
@@ -12,10 +14,24 @@ load_first <- function(workload,scheduler){
   return(read.table(file = file_name,header=TRUE,quote="\""));
 }
 
+compare_var <- function(datalist,name_vec,var,fun){
+  values = c()
+  for (i in 1:length(datalist)){
+    data = datalist[[i]]
+    values[i] = fun(data[[var]])
+  } 
+  barplot(values,names.arg = name_vec,xlab = "Schedulers",ylab = var)
+}
 
+compare_workload <- function(workload,var,fun){
+  data = list()
+  for (scheduler in schedulers){
+    data[[scheduler]] = load_first(workload,scheduler)
+  }
+  compare_var(data,schedulers,var,fun)
+}
 
 workload = "default_1000"
-schedulers = c("FCFS","RR","SJF","SRTF")
 
 data = list(NA)
 length(data) = length(schedulers)
