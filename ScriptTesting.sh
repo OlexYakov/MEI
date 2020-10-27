@@ -19,7 +19,7 @@ else
     simulation_dir="$out_dir_simulator/$workload"
     mkdir -p $simulation_dir
 
-    for i in {1..5}; do
+    for i in {1..6}; do
         input_file="$workload_dir/$i.cvs"
 
         echo -en "\rGenerating workloads seed $i"
