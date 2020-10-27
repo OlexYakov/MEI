@@ -22,16 +22,17 @@ else
     for i in {1..5}; do
         input_file="$workload_dir/$i.txt"
 
-        echo "Generating workloads seed $i"
+        echo -en "\rGenerating workloads seed $i"
         $generator $2 $3 $4 $5 $6 $7 $8 $i > $input_file 
 
-        echo "Simulating workloads seed $i FCFS"
+        echo -en "\rSimulating workloads seed $i FCFS"
         $simulator --cpu-scheduler fcfs < $input_file > "${simulation_dir}/FCFS_$i.txt"
-        echo "Simulating workloads seed $i RR"
+        echo -en "\rSimulating workloads seed $i RR  "
         $simulator --cpu-scheduler rr --quantum $quantum  < $input_file > "${simulation_dir}/RR_$i.txt"
-        echo "Simulating workloads seed $i SJF"
+        echo -en "\rSimulating workloads seed $i SJF"
         $simulator --cpu-scheduler sjf < $input_file > "${simulation_dir}/SJF_$i.txt"
-        echo "Simulating workloads seed $i SRTF"
+        echo -en "\rSimulating workloads seed $i SRTF"
         $simulator --cpu-scheduler srtf < $input_file > "${simulation_dir}/SRTF_$i.txt"
+        echo -e "\rSimulations for seed $i done.     "
     done
 fi
