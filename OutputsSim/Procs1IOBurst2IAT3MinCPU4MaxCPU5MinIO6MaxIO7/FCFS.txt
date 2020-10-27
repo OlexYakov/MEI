@@ -1,4 +1,0 @@
-# Cpu scheduler: fcfs
-# Quantum: None
-pid arrival_time cpu_bursts_time io_bursts_time bursts_time tat ready_wait_time io_wait_time
-0 5.388263448164171 18.712683738624214 18.91086042487153 37.62354416349574 37.62354416349574 0.0 18.91086042487153

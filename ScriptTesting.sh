@@ -1,31 +1,37 @@
 #!/bin/bash
-out_dir_generator="OutputsGen"
-out_dir_simulator="OutputsSim"
+out_dir_generator="outputs_gen"
+out_dir_simulator="outputs_sim"
 
+generator="python3 gen_workload.py"
+simulator="python3 simulator.py"
 #Round Robin Quantum Defautlt
 quantum=100
 
-if [ $# != 7 ]
+if [ $# != 8 ]
 then
     echo "Wrong amount of parameter passed"
 else
-    #Folder for Generator
-    mkdir "Procs$1IOBurst$2IAT$3MinCPU$4MaxCPU$5MinIO$6MaxIO$7"
-    mv "Procs$1IOBurst$2IAT$3MinCPU$4MaxCPU$5MinIO$6MaxIO$7" "$out_dir_generator"
-    #Folder for Simulator
-    mkdir "Procs$1IOBurst$2IAT$3MinCPU$4MaxCPU$5MinIO$6MaxIO$7"
-    mv "Procs$1IOBurst$2IAT$3MinCPU$4MaxCPU$5MinIO$6MaxIO$7" "$out_dir_simulator"
+
+    # workload="Procs$1IOBurst$2IAT$3MinCPU$4MaxCPU$5MinIO$6MaxIO$7"
+    workload="$1"
+    workload_dir="$out_dir_generator/$workload"
+    mkdir -p $workload_dir
+    simulation_dir="$out_dir_simulator/$workload"
+    mkdir -p $simulation_dir
+
     for i in {1..5}; do
-        echo $i
-        #Generator File
-        python3 gen_workload.py $1 $2 $3 $4 $5 $6 $7 $i > "$out_dir_generator/Procs$1IOBurst$2IAT$3MinCPU$4MaxCPU$5MinIO$6MaxIO$7/Procs$1IOBurst$2IAT$3MinCPU$4MaxCPU$5MinIO$6MaxIO$7Seed$i.txt" 
-        #FCFS
-        < "$out_dir_generator/Procs$1IOBurst$2IAT$3MinCPU$4MaxCPU$5MinIO$6MaxIO$7/Procs$1IOBurst$2IAT$3MinCPU$4MaxCPU$5MinIO$6MaxIO$7Seed$i.txt" python3 simulator.py --cpu-scheduler fcfs > "$out_dir_simulator/Procs$1IOBurst$2IAT$3MinCPU$4MaxCPU$5MinIO$6MaxIO$7/FCFSSeed$i.txt"
-        #RR
-        < "$out_dir_generator/Procs$1IOBurst$2IAT$3MinCPU$4MaxCPU$5MinIO$6MaxIO$7/Procs$1IOBurst$2IAT$3MinCPU$4MaxCPU$5MinIO$6MaxIO$7Seed$i.txt" python3 simulator.py --cpu-scheduler rr --quantum $quantum > "$out_dir_simulator/Procs$1IOBurst$2IAT$3MinCPU$4MaxCPU$5MinIO$6MaxIO$7/RRSeed$i.txt"
-        #SJF
-        < "$out_dir_generator/Procs$1IOBurst$2IAT$3MinCPU$4MaxCPU$5MinIO$6MaxIO$7/Procs$1IOBurst$2IAT$3MinCPU$4MaxCPU$5MinIO$6MaxIO$7Seed$i.txt" python3 simulator.py --cpu-scheduler sjf > "$out_dir_simulator/Procs$1IOBurst$2IAT$3MinCPU$4MaxCPU$5MinIO$6MaxIO$7/SJFSeed$i.txt"
-        #SRTF
-        < "$out_dir_generator/Procs$1IOBurst$2IAT$3MinCPU$4MaxCPU$5MinIO$6MaxIO$7/Procs$1IOBurst$2IAT$3MinCPU$4MaxCPU$5MinIO$6MaxIO$7Seed$i.txt" python3 simulator.py --cpu-scheduler srtf > "$out_dir_simulator/Procs$1IOBurst$2IAT$3MinCPU$4MaxCPU$5MinIO$6MaxIO$7/SRTFSeed$i.txt"
+        input_file="$workload_dir/$i.txt"
+
+        echo "Generating workloads seed $i"
+        $generator $2 $3 $4 $5 $6 $7 $8 $i > $input_file 
+
+        echo "Simulating workloads seed $i FCFS"
+        $simulator --cpu-scheduler fcfs < $input_file > "${simulation_dir}/FCFS_$i.txt"
+        echo "Simulating workloads seed $i RR"
+        $simulator --cpu-scheduler rr --quantum $quantum  < $input_file > "${simulation_dir}/RR_$i.txt"
+        echo "Simulating workloads seed $i SJF"
+        $simulator --cpu-scheduler sjf < $input_file > "${simulation_dir}/SJF_$i.txt"
+        echo "Simulating workloads seed $i SRTF"
+        $simulator --cpu-scheduler srtf < $input_file > "${simulation_dir}/SRTF_$i.txt"
     done
 fi
