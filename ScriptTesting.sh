@@ -5,7 +5,7 @@ out_dir_simulator="outputs_sim"
 generator="python3 gen_workload.py"
 simulator="python3 simulator.py"
 #Round Robin Quantum Defautlt
-quantum=100
+quantum=0.01
 
 if [ $# != 8 ]
 then
@@ -20,7 +20,7 @@ else
     mkdir -p $simulation_dir
 
     for i in {1..5}; do
-        input_file="$workload_dir/$i.txt"
+        input_file="$workload_dir/$i.cvs"
 
         echo -en "\rGenerating workloads seed $i"
         $generator $2 $3 $4 $5 $6 $7 $8 $i > $input_file 
