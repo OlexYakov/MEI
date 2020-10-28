@@ -42,7 +42,7 @@ for wk_file_name in wk_file_names:
             if "#" in line:
                 continue
             times = line.split()
-            nbursts = len(times)//2
+            nbursts = len(times)//2 - 1
             cpu_time = sum([float(i) for i in times[0:-1:2]])
             io_time = sum([float(i) for i in times[1:-1:2]])
             outf.write(f"{nbursts} {cpu_time} {io_time}\n")
