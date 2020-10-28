@@ -28,3 +28,22 @@ gen_compare_seeds_by_scheduler <- function(wk_name,var){
   args <- append(plots,list("ncol"=2))
   return(do.call(plot_grid,args))
 }
+
+gen_density_from_wk_list <- function(wk_list,var,save=TRUE,draw=TRUE,path="./graphs"){
+   for (wk_name in wk_list){
+     wk <- load_workload(wk_name)
+     p <- gen_density_by_scheduler(wk,var)
+     title <- paste("Density plot for",var,"in workload",wk_name,sep=" ")
+     p <- p + labs(title=title)
+     if (draw) print(p)
+     if (save){
+       filename <- paste(wk_name,"_",var,"_den_plt",".png",sep = "")
+       ggsave(filename,p,path = path)
+     }
+   }
+}
+
+gen_qq_from_wk <- function(wk,var,draw=TRUE,save=FALSE){
+  p <- ggplot(wk,aes(sample=.data[[var]],color=scheduler)) + stat_qq(alpha = 0.1) + stat_qq_line()
+  if (draw) print(p)
+}

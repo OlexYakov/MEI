@@ -5,7 +5,7 @@
 # Description
 #   Generate workload for CPU scheduler simulation.
 #   Interarrival times follow an exponential distribution with mean lambda.
-#   CPU and I/O bursts 
+#   CPU and I/O bursts
 #
 # Workload format: one line per process, each containing a sequence of
 # floating-point numbers of even length. In each line, the first number
@@ -17,6 +17,7 @@
 
 import sys
 import numpy as np
+import matplotlib.pyplot as plt
 
 # FIXME
 if len(sys.argv) == 9:
@@ -28,7 +29,7 @@ if len(sys.argv) == 9:
     min_IO = float(sys.argv[6])
     max_IO = float(sys.argv[7])
     seed = int(sys.argv[8])
-elif len(sys.argv) == 1: # default values
+elif len(sys.argv) == 1:  # default values
     print("# No arguments supplied, using default parameter values.")
     num_procs = 50
     mean_io_bursts = 10
@@ -56,9 +57,8 @@ t = 0.
 for i in range(num_procs):
     t += np.random.exponential(mean_iat)
     print(t, end=' ')
-    io_bursts = np.random.poisson(mean_io_bursts) # Why Poisson? Why not?
+    io_bursts = np.random.poisson(mean_io_bursts)  # Why Poisson? Why not?
     for j in range(io_bursts):
         print(np.random.uniform(min_CPU, max_CPU), end=' ')
         print(np.random.uniform(min_IO, max_IO), end=' ')
     print(np.random.uniform(min_CPU, max_CPU))
-

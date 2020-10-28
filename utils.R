@@ -17,6 +17,7 @@ load_one <- function(workload_name,scheduler,seed=1){
   df = read.table(file = file_name,header=TRUE,quote="\"")
   df$scheduler = scheduler
   df$workload = workload_name
+  df$seed=seed
   return(df);
 }
 

@@ -11,7 +11,7 @@ if [ $# != 8 ]
 then
     echo "Wrong amount of parameter passed"
 else
-
+    start=`date +%s`
     # workload="Procs$1IOBurst$2IAT$3MinCPU$4MaxCPU$5MinIO$6MaxIO$7"
     workload="$1"
     workload_dir="$out_dir_generator/$workload"
@@ -19,7 +19,7 @@ else
     simulation_dir="$out_dir_simulator/$workload"
     mkdir -p $simulation_dir
 
-    for i in {1..6}; do
+    for i in {1..1}; do
         input_file="$workload_dir/$i.cvs"
 
         echo -en "\rGenerating workloads seed $i"
@@ -35,4 +35,8 @@ else
         $simulator --cpu-scheduler srtf < $input_file > "${simulation_dir}/SRTF_$i.txt"
         echo -e "\rSimulations for seed $i done.     "
     done
+
+    end=`date +%s`
+    runtime=$((end-start))
+    echo "Generating $1 took $runtime seconds"
 fi
