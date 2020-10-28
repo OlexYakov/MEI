@@ -47,3 +47,18 @@ gen_qq_from_wk <- function(wk,var,draw=TRUE,save=FALSE){
   p <- ggplot(wk,aes(sample=.data[[var]],color=scheduler)) + stat_qq(alpha = 0.1) + stat_qq_line()
   if (draw) print(p)
 }
+
+gen_boxplot_from_wk <- function(wk,var,draw=TRUE,save=TRUE){
+  p <- ggplot(wk,aes(.data[[var]],scheduler,color=workload))
+  p <- p + geom_boxplot(notch=TRUE)
+  if (draw) print(p)
+}
+
+gen_proc_hbinmap <- function(wk_name,draw=TRUE){
+  pr = load_procs(wk_name)
+  wk = load_workload(wk_name)
+  p <- ggplot(pr,aes(cpu_time,io_time,)) + 
+    geom_hex()
+  if (draw) print(p)
+  return(p)
+}

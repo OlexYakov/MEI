@@ -36,8 +36,8 @@ def gen_info(wk_name):
                     continue
                 times = line.split()
                 nbursts = len(times)//2 - 1
-                cpu_time = sum([float(i) for i in times[0:-1:2]])
-                io_time = sum([float(i) for i in times[1:-1:2]])
+                cpu_time = sum([float(i) for i in times[1:-1:2]])
+                io_time = sum([float(i) for i in times[2:-1:2]])
                 outf.write(f"\n{nbursts} {cpu_time} {io_time}")
 
 
