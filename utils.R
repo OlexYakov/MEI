@@ -45,22 +45,6 @@ load_procs <- function(wk_names){
   return(rbindlist(lapply(wk_names,load_proc)))
 }
 
-compare_var <- function(datalist,name_vec,var,fun){
-  values = c()
-  for (i in 1:length(datalist)){
-    data = datalist[[i]]
-    values[i] = fun(data[[var]])
-  } 
-  barplot(values,names.arg = name_vec,xlab = "Schedulers",ylab = var)
-}
-
-compare_workload <- function(workload,var,fun){
-  data = list()
-  for (scheduler in schedulers){
-    data[[scheduler]] = load_one(workload,scheduler)
-  }
-  compare_var(data,schedulers,var,fun)
-}
 
 # workload = "default_1000"
 # 

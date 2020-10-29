@@ -2,14 +2,22 @@ source("utils.R")
 require(ggplot2)
 require(cowplot)
 
-# alpha = 0.1
-# colors = c(
-#   rgb(1,0,0,alpha = alpha),
-#   rgb(0,1,0,alpha = alpha),
-#   rgb(0,0,1,alpha = alpha),
-#   rgb(1,1,0,alpha = alpha),
-#   rgb(0,1,1,alpha = alpha))
+compare_var <- function(datalist,name_vec,var,fun){
+  values = c()
+  for (i in 1:length(datalist)){
+    data = datalist[[i]]
+    values[i] = fun(data[[var]])
+  } 
+  barplot(values,names.arg = name_vec,xlab = "Schedulers",ylab = var)
+}
 
+compare_workload <- function(workload,var,fun){
+  data = list()
+  for (scheduler in schedulers){
+    data[[scheduler]] = load_one(workload,scheduler)
+  }
+  compare_var(data,schedulers,var,fun)
+}
 
 gen_density_by_scheduler <- function(wk,var){
   p <- ggplot(wk, aes(.data[[var]],color=scheduler,fill=scheduler))

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-gen="./ScriptTesting.sh"
+gen="./run_batch_simulations.sh"
 
 # $gen cpu_tests_a1 1000 10 10 0.1 0.2 1 2
 # $gen cpu_tests_a2 1000 10 10 0.1 1 1 2
