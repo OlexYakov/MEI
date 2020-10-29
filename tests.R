@@ -5,7 +5,6 @@ source("graphs.R")
 require(e1071)
 require(ggformula)
 require(cowplot)
-require(devtools) # not acctualy required, mas para instalar o gg3d é necessário
 
 # wk = load_workload("default")
 # 
@@ -47,3 +46,10 @@ cpu_tests=c(
 # compare workloads
 prs = load_procs(cpu_tests)
 gen_proc_hbinmap(prs)
+
+wks = load_workloads(c("cpu_tests_b1","cpu_tests_c"))
+compare_workload("cpu_tests_b2","tat",mean)
+
+wk_b1 = wks[wks$workload=="cpu_tests_b1"]
+gen_density_by_scheduler(wk_b1,"ready_wait_time")
+
