@@ -34,13 +34,16 @@ require(devtools) # not acctualy required, mas para instalar o gg3d é necessár
 # save_plot("graphs/cpu_bound_1000_tat_seed_compare.png",p,ncol=2)
 
 #generate all tat density plots for the cpu_tests
-# cpu_tests=c(
-#   "cpu_tests_a1","cpu_tests_a2","cpu_tests_b1","cpu_tests_b2","cpu_tests_b3","cpu_tests_c"
-# )
+cpu_tests=c(
+  "cpu_tests_a1","cpu_tests_a2","cpu_tests_b1","cpu_tests_b2","cpu_tests_b3","cpu_tests_c"
+)
 # path="./graphs/cpu_tests/"
 # gen_density_from_wk_list(cpu_tests,"tat",path=path,save=FALSE)
 # gen_density_from_wk_list(cpu_tests,"ready_wait_time",path=path)
 # 
 # gen_qq_from_wk(load_workload("cpu_tests_b2"),"tat")
 
-gen_proc
+
+# compare workloads
+prs = load_procs(cpu_tests)
+gen_proc_hbinmap(prs)

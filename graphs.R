@@ -54,11 +54,18 @@ gen_boxplot_from_wk <- function(wk,var,draw=TRUE,save=TRUE){
   if (draw) print(p)
 }
 
-gen_proc_hbinmap <- function(wk_name,draw=TRUE){
-  pr = load_procs(wk_name)
-  wk = load_workload(wk_name)
-  p <- ggplot(pr,aes(cpu_time,io_time,)) + 
+gen_proc_hbinmap <- function(pr,draw=TRUE){
+  p <- ggplot(pr,aes(cpu_time,io_time,color=workload)) + 
     geom_hex()
+  
+  p2 <- ggplot(pr,aes(nbursts,color=workload)) +
+    geom_histogram(binwidth = 0.5)
+  
+  p3 <- ggplot(pr,aes(nbursts,after_stat(count),color=workload)) +
+    geom_density()
+  
+  p <- plot_grid(p,p2,p3)
+  
   if (draw) print(p)
   return(p)
 }

@@ -34,9 +34,15 @@ load_workloads <- function(names,seed=1){
   return(rbindlist(lapply(names,load_workload,seed=seed)))
 }
 
-load_procs<-function(wk_name){
+load_proc<-function(wk_name){
   proc_name = paste("./outputs_gen_info/",wk_name,"/1.cvs",sep="")
-  return(read.table(proc_name,header=TRUE, sep=""))
+  df = read.table(proc_name,header=TRUE, sep="")
+  df$workload=wk_name
+  return(df)
+}
+
+load_procs <- function(wk_names){
+  return(rbindlist(lapply(wk_names,load_proc)))
 }
 
 compare_var <- function(datalist,name_vec,var,fun){
