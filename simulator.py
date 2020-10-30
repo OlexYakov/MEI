@@ -31,6 +31,7 @@ import argparse
 import salabim as sim
 import numpy as np
 
+
 def read_workload(file):
     if file is None:
         file = sys.stdin
@@ -44,10 +45,12 @@ def read_workload(file):
         while l:
             if l[0] != "#":
                 vals = [float(x) for x in l.split()]
-                procs.append(Process(pid = pid, arrival = vals[0], bursts = vals[1:]))
+                procs.append(
+                    Process(pid=pid, arrival=vals[0], bursts=vals[1:]))
                 pid += 1
             l = f.readline()
     return procs
+
 
 class Process:
     def __init__(self, pid, arrival, bursts):
@@ -55,36 +58,40 @@ class Process:
         self.arrival = arrival
         self.bursts = bursts
 
+
 class Simulator:
-    def __init__(self, processes, cpu_scheduler, quantum = None, ofile = None):
+    def __init__(self, processes, cpu_scheduler, quantum=None, ofile=None):
         self.cpu_scheduler = cpu_scheduler
-        self.quantum = quantum # for round robin scheduler
+        self.quantum = quantum  # for round robin scheduler
         if self.cpu_scheduler == "rr" and self.quantum is None:
             raise ValueError("Quantum parameter is required for round robin")
         if self.quantum is not None and self.quantum <= 0:
-            raise ValueError("Quantum parameter needs to be a positive (non-zero) value")
+            raise ValueError(
+                "Quantum parameter needs to be a positive (non-zero) value")
 
         self.processes = processes
-        processes.sort(key = lambda x: x.arrival)
+        processes.sort(key=lambda x: x.arrival)
 
         self.ofile = sys.stdout if ofile == None else open(ofile, "w")
 
-        print("# Cpu scheduler: %s" % self.cpu_scheduler, file = self.ofile)
-        print("# Quantum: %s" % self.quantum, file = self.ofile)
+        print("# Cpu scheduler: %s" % self.cpu_scheduler, file=self.ofile)
+        print("# Quantum: %s" % self.quantum, file=self.ofile)
 
-        self.env = sim.Environment(trace = False)
-        self.cpu = sim.Resource("CPU", capacity = 1, preemptive = self.cpu_scheduler == "srtf")
-        self.io = sim.Resource("I/O", capacity = 1)
-        
-        ProcessArrival(simulator = self)
+        self.env = sim.Environment(trace=False)
+        self.cpu = sim.Resource(
+            "CPU", capacity=1, preemptive=self.cpu_scheduler == "srtf")
+        self.io = sim.Resource("I/O", capacity=1)
+
+        ProcessArrival(simulator=self)
 
     def __del__(self):
         if self.ofile != sys.stdout:
             self.ofile.close()
 
     def run(self):
-        print("pid arrival_time cpu_bursts_time io_bursts_time bursts_time tat ready_wait_time io_wait_time", file = self.ofile)
+        print("pid arrival_time cpu_bursts_time io_bursts_time bursts_time tat ready_wait_time io_wait_time", file=self.ofile)
         self.env.run()
+
 
 class ProcessArrival(sim.Component):
     def setup(self, simulator):
@@ -92,8 +99,10 @@ class ProcessArrival(sim.Component):
 
     def process(self):
         for p in self.simulator.processes:
-            yield self.hold(till = p.arrival)
-            ProcessComponent(simulator = self.simulator, pid = p.pid, arrival = p.arrival, bursts = p.bursts)
+            yield self.hold(till=p.arrival)
+            ProcessComponent(simulator=self.simulator, pid=p.pid,
+                             arrival=p.arrival, bursts=p.bursts)
+
 
 class ProcessComponent(sim.Component):
     def setup(self, simulator, pid, arrival, bursts):
@@ -114,39 +123,39 @@ class ProcessComponent(sim.Component):
         yield from self.__schedule_cpu_burst(b[-1])
 
         tat = self.simulator.env.now() - clock_start
-        print(self.pid, end = " ", file = self.simulator.ofile)
-        print(self.arrival, end = " ", file = self.simulator.ofile)
-        print(np.sum(b[0:len(b):2]), end = " ", file = self.simulator.ofile)
-        print(np.sum(b[1:len(b):2]), end = " ", file = self.simulator.ofile)
-        print(np.sum(b), end = " ", file = self.simulator.ofile)
-        print(tat, end = " ", file = self.simulator.ofile)
-        print(self.ready_wait_time, end = " ", file = self.simulator.ofile)
-        print(self.io_wait_time, end = "\n", file = self.simulator.ofile)
+        print(self.pid, end=" ", file=self.simulator.ofile)
+        print(self.arrival, end=" ", file=self.simulator.ofile)
+        print(np.sum(b[0:len(b):2]), end=" ", file=self.simulator.ofile)
+        print(np.sum(b[1:len(b):2]), end=" ", file=self.simulator.ofile)
+        print(np.sum(b), end=" ", file=self.simulator.ofile)
+        print(tat, end=" ", file=self.simulator.ofile)
+        print(self.ready_wait_time, end=" ", file=self.simulator.ofile)
+        print(self.io_wait_time, end="\n", file=self.simulator.ofile)
 
     def __schedule_cpu_burst(self, burst):
         if self.simulator.cpu_scheduler == "fcfs":
             yield from self.__queue_cpu(self.simulator.cpu)
-            yield self.hold(duration = burst)
+            yield self.hold(duration=burst)
             self.release(self.simulator.cpu)
         elif self.simulator.cpu_scheduler == "rr":
             s = burst
             while s > self.simulator.quantum:
                 yield from self.__queue_cpu(self.simulator.cpu)
-                yield self.hold(duration = self.simulator.quantum)
+                yield self.hold(duration=self.simulator.quantum)
                 self.release(self.simulator.cpu)
                 s -= self.simulator.quantum
             yield from self.__queue_cpu(self.simulator.cpu)
-            yield self.hold(duration = s)
+            yield self.hold(duration=s)
             self.release(self.simulator.cpu)
         elif self.simulator.cpu_scheduler == "sjf":
             yield from self.__queue_cpu((self.simulator.cpu, 1, burst))
-            yield self.hold(duration = burst)
+            yield self.hold(duration=burst)
             self.release(self.simulator.cpu)
         elif self.simulator.cpu_scheduler == "srtf":
             s = burst
             while True:
                 yield from self.__queue_cpu((self.simulator.cpu, 1, s))
-                yield self.hold(duration = s, mode = "")
+                yield self.hold(duration=s, mode="")
                 if not self.isbumped():
                     break
                 s -= self.simulator.env.now() - self.mode_time()
@@ -163,21 +172,28 @@ class ProcessComponent(sim.Component):
     def __schedule_io_burst(self, burst):
         io_start = self.simulator.env.now()
         yield self.request(self.simulator.io)
-        yield self.hold(duration = burst)
+        yield self.hold(duration=burst)
         self.release(self.simulator.io)
         self.io_wait_time += self.simulator.env.now() - io_start
 
+
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description = "CPU and I/O scheduling simulator")
-    parser.add_argument("--cpu-scheduler", choices = ["fcfs", "rr", "sjf", "srtf"], required = True, help = "CPU scheduler")
-    parser.add_argument("--quantum", type=float, default = None, help = "Quantum paramater (required only by round robin cpu scheduler)")
-    parser.add_argument("--input-file", metavar = "FILE", default = None, help = "Input file, if it is not the data is read from stdin")
-    parser.add_argument("--output-file", metavar = "FILE", default = None, help = "Output file, if it is not set the data is printed to stdout")
+    parser = argparse.ArgumentParser(
+        description="CPU and I/O scheduling simulator")
+    parser.add_argument(
+        "--cpu-scheduler", choices=["fcfs", "rr", "sjf", "srtf"], required=True, help="CPU scheduler")
+    parser.add_argument("--quantum", type=float, default=None,
+                        help="Quantum paramater (required only by round robin cpu scheduler)")
+    parser.add_argument("--input-file", metavar="FILE", default=None,
+                        help="Input file, if it is not the data is read from stdin")
+    parser.add_argument("--output-file", metavar="FILE", default=None,
+                        help="Output file, if it is not set the data is printed to stdout")
 
     args = parser.parse_args(sys.argv[1:])
     output_file = sys.stdout if args.output_file is None else args.output_file
 
-    processes = read_workload(file = args.input_file)
+    processes = read_workload(file=args.input_file)
 
-    simulator = Simulator(processes = processes, cpu_scheduler = args.cpu_scheduler, quantum = args.quantum, ofile = args.output_file)
+    simulator = Simulator(processes=processes, cpu_scheduler=args.cpu_scheduler,
+                          quantum=args.quantum, ofile=args.output_file)
     simulator.run()

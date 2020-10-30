@@ -20,21 +20,25 @@ compare_workload <- function(workload,var,fun){
 }
 
 gen_density_by_scheduler <- function(wk,var){
-  p <- ggplot(wk, aes(.data[[var]],color=scheduler,fill=scheduler))
-  return(p + geom_density(alpha=0.1))
+  p <- ggplot(wk, aes(.data[[var]],color=scheduler,fill=scheduler)) +
+      geom_histogram(alpha=0.1)
+  return(p)
 }
 
-gen_compare_seeds_by_scheduler <- function(wk_name,var){
-  plots = list()
+gen_compare_seeds_by_scheduler <- function(wk_name,var,draw=TRUE){
+  wks = list()
   seeds = seq(1,6)
-  for (i in seeds){
-    wk <- load_workload(wk_name,seed=i)
-    p <- gen_density_by_scheduler(wk,var)
-    p <- p + labs(tag = i)
-    plots[[i]] <- p
-  }
-  args <- append(plots,list("ncol"=2))
-  return(do.call(plot_grid,args))
+  for (i in seeds)
+    wks[[i]] <- load_workload(wk_name,seed=i)
+  
+  wk = rbindlist(wks)
+  
+  p <- ggplot(wk,aes(.data[[var]],color=scheduler,fill=scheduler)) +
+    geom_density(alpha=0.1)
+    facet_wrap(vars(seed), scales = "free",labeller = label_both)
+  
+  if (draw) print(p)
+  return(p)
 }
 
 

@@ -7,6 +7,12 @@ simulator="python3 simulator.py"
 #Round Robin Quantum Defautlt
 quantum=0.1
 
+if [[ $1 == "--sim" ]];
+then
+    echo "works"
+    exit
+fi
+
 if [ $# != 8 ]
 then
     echo "Wrong amount of parameter passed"
@@ -19,7 +25,7 @@ else
     simulation_dir="$out_dir_simulator/$workload"
     mkdir -p $simulation_dir
 
-    for i in {1..1}; do
+    for i in {1..6}; do
         input_file="$workload_dir/$i.cvs"
 
         echo -en "\rGenerating workloads seed $i"
