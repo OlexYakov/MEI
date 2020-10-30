@@ -33,9 +33,7 @@ require(cowplot)
 # save_plot("graphs/cpu_bound_1000_tat_seed_compare.png",p,ncol=2)
 
 #generate all tat density plots for the cpu_tests
-cpu_tests=c(
-  "cpu_tests_a1","cpu_tests_a2","cpu_tests_b1","cpu_tests_b2","cpu_tests_b3","cpu_tests_c"
-)
+
 # path="./graphs/cpu_tests/"
 # gen_density_from_wk_list(cpu_tests,"tat",path=path,save=FALSE)
 # gen_density_from_wk_list(cpu_tests,"ready_wait_time",path=path)
@@ -44,12 +42,12 @@ cpu_tests=c(
 
 
 # compare workloads
-prs = load_procs(cpu_tests)
-gen_proc_hbinmap(prs)
-
-wks = load_workloads(c("cpu_tests_b1","cpu_tests_c"))
-compare_workload("cpu_tests_b2","tat",mean)
-
-wk_b1 = wks[wks$workload=="cpu_tests_b1"]
-gen_density_by_scheduler(wk_b1,"ready_wait_time")
+# prs = load_procs(cpu_tests)
+# gen_proc_hbinmap(prs)
+# 
+# wks = load_workloads(c("cpu_tests_b1","cpu_tests_c"))
+# compare_workload("cpu_tests_b2","tat",mean)
+# 
+# wk_b1 = wks[wks$workload=="cpu_tests_b1"]
+# gen_density_by_scheduler(wk_b1,"ready_wait_time")
 

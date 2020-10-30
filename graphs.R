@@ -37,18 +37,35 @@ gen_compare_seeds_by_scheduler <- function(wk_name,var){
   return(do.call(plot_grid,args))
 }
 
-gen_density_from_wk_list <- function(wk_list,var,save=TRUE,draw=TRUE,path="./graphs"){
-   for (wk_name in wk_list){
-     wk <- load_workload(wk_name)
-     p <- gen_density_by_scheduler(wk,var)
-     title <- paste("Density plot for",var,"in workload",wk_name,sep=" ")
-     p <- p + labs(title=title)
-     if (draw) print(p)
-     if (save){
-       filename <- paste(wk_name,"_",var,"_den_plt",".png",sep = "")
-       ggsave(filename,p,path = path)
-     }
-   }
+
+gen_density_by_workload <- function(wk_list,var,group=TRUE,draw=TRUE,save=FALSE,path="./graphs"){
+  if (group){
+    p <- ggplot(wks,aes(tat,color=scheduler,fill=scheduler)) + 
+      geom_density(alpha=0.1) +
+      facet_wrap(vars(workload),scales = "free")
+    filename <- paste("group_",var,"_den_plt.png",sep="")
+    
+    if (draw) print(p)
+    if (save){
+      ggsave(filename,p,path=path)
+    }
+  } else {
+    wk_list <- split(wk_list,wk_list$workload)
+    for (i in 1:length(wk_list)){
+      wk = wk_list[[i]]
+      wk_name <- wk$workload[[1]]
+      
+      p <- gen_density_by_scheduler(wk,var) +
+        labs(title=wk_name)
+      
+      if (draw) print(p)
+      if (save){
+        filename <- paste(wk_name,"_",var,"_den_plt.png",sep = "")
+        ggsave(filename,p,path = path)
+      }
+    }
+  }
+  return(p)
 }
 
 gen_qq_from_wk <- function(wk,var,draw=TRUE,save=FALSE){
@@ -66,13 +83,13 @@ gen_proc_hbinmap <- function(pr,draw=TRUE){
   p <- ggplot(pr,aes(cpu_time,io_time,color=workload)) + 
     geom_hex()
   
-  p2 <- ggplot(pr,aes(nbursts,color=workload)) +
-    geom_histogram(binwidth = 0.5)
-  
-  p3 <- ggplot(pr,aes(nbursts,after_stat(count),color=workload)) +
-    geom_density()
-  
-  p <- plot_grid(p,p2,p3)
+  # p2 <- ggplot(pr,aes(nbursts,color=workload)) +
+  #   geom_histogram(binwidth = 0.5)
+  # 
+  # p3 <- ggplot(pr,aes(nbursts,after_stat(count),color=workload)) +
+  #   geom_density()
+  # 
+  # p <- plot_grid(p,p2,p3)
   
   if (draw) print(p)
   return(p)

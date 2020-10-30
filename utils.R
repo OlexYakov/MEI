@@ -1,6 +1,9 @@
 require("data.table")
 
 schedulers = c("FCFS","RR","SJF","SRTF")
+cpu_tests=c(
+  "cpu_tests_a1","cpu_tests_a2","cpu_tests_b1","cpu_tests_b2","cpu_tests_b3","cpu_tests_c"
+)
 
 load_simulation_data_frames <- function(workload,scheduler) 
 {
