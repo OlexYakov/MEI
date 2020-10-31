@@ -21,7 +21,7 @@ compare_workload <- function(workload,var,fun){
 
 gen_density_by_scheduler <- function(wk,var){
   p <- ggplot(wk, aes(.data[[var]],color=scheduler,fill=scheduler)) +
-      geom_histogram(alpha=0.1)
+      geom_density(alpha=0.1)
   return(p)
 }
 
@@ -44,7 +44,7 @@ gen_compare_seeds_by_scheduler <- function(wk_name,var,draw=TRUE){
 
 gen_density_by_workload <- function(wk_list,var,group=TRUE,draw=TRUE,save=FALSE,path="./graphs"){
   if (group){
-    p <- ggplot(wks,aes(tat,color=scheduler,fill=scheduler)) + 
+    p <- ggplot(wks,aes(.data[[var]],color=scheduler,fill=scheduler)) + 
       geom_density(alpha=0.1) +
       facet_wrap(vars(workload),scales = "free")
     filename <- paste("group_",var,"_den_plt.png",sep="")
@@ -75,12 +75,14 @@ gen_density_by_workload <- function(wk_list,var,group=TRUE,draw=TRUE,save=FALSE,
 gen_qq_from_wk <- function(wk,var,draw=TRUE,save=FALSE){
   p <- ggplot(wk,aes(sample=.data[[var]],color=scheduler)) + stat_qq(alpha = 0.1) + stat_qq_line()
   if (draw) print(p)
+  return(p)
 }
 
 gen_boxplot_from_wk <- function(wk,var,draw=TRUE,save=TRUE){
   p <- ggplot(wk,aes(.data[[var]],scheduler,color=workload))
   p <- p + geom_boxplot(notch=TRUE)
   if (draw) print(p)
+  return(p)
 }
 
 gen_proc_hbinmap <- function(pr,draw=TRUE){

@@ -100,6 +100,7 @@ class ProcessArrival(sim.Component):
     def process(self):
         for p in self.simulator.processes:
             yield self.hold(till=p.arrival)
+            # print(f"{p.pid} arrived, time={self.simulator.env.now()}")
             ProcessComponent(simulator=self.simulator, pid=p.pid,
                              arrival=p.arrival, bursts=p.bursts)
 
@@ -115,6 +116,7 @@ class ProcessComponent(sim.Component):
 
     def process(self):
         b = self.bursts
+        # print(f"{self.pid} starting, time={self.simulator.env.now()}")
         clock_start = self.simulator.env.now()
 
         for i in range(1, len(b), 2):
@@ -123,6 +125,7 @@ class ProcessComponent(sim.Component):
         yield from self.__schedule_cpu_burst(b[-1])
 
         tat = self.simulator.env.now() - clock_start
+        # print(f"{self.pid} ended, time={self.simulator.env.now():.1f},tat={tat:.1f}")
         print(self.pid, end=" ", file=self.simulator.ofile)
         print(self.arrival, end=" ", file=self.simulator.ofile)
         print(np.sum(b[0:len(b):2]), end=" ", file=self.simulator.ofile)

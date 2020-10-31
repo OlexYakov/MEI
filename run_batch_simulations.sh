@@ -26,7 +26,7 @@ else
     mkdir -p $simulation_dir
 
     for i in {1..6}; do
-        input_file="$workload_dir/$i.cvs"
+        input_file="$workload_dir/$i.csv"
 
         echo -en "\rGenerating workloads seed $i"
         $generator $2 $3 $4 $5 $6 $7 $8 $i > $input_file 

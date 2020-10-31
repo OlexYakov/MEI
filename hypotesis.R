@@ -4,7 +4,8 @@ source("graphs.R")
 # H1: under high CPU loads, the turnaround time of RR will be higher
 #analise process workload 
 pwk = load_procs(cpu_tests)
-gen_proc_hbinmap(pwk)
+p <- gen_proc_hbinmap(pwk) + theme(legend.position="top")
+print(p)
 aggregate(pwk$cpu_time,list(pwk$workload),summary)
 
 #analise simulation
@@ -23,3 +24,33 @@ p <- ggplot(wks,aes(ready_wait_time,scheduler,color=workload)) +
       theme(legend.position = "top") +
       facet_wrap(vars(type),scales = "free")
 print(p)
+
+
+# H2 : FCFS despachar os processos mais rápido do que o RR
+wks = load_workload("big_and_fast")
+prc = load_proc("big_and_fast")
+p <- gen_proc_hbinmap(prc) + theme(legend.position="top")
+print(p)
+p1 <- gen_density_by_workload(wks,"ready_wait_time") + theme(legend.position="bottom")
+print(p1)
+p2 <- gen_boxplot_from_wk(wks,"ready_wait_time") + theme(legend.position = "none")
+print(p2)
+gen_compare_seeds_by_scheduler("big_and_fast","tat")
+
+# H3 : ???
+# wk = load_workload("sorted")
+# gen_density_by_scheduler(wk,"tat")
+
+# H3.1 SJF will have bigger tat that SRTF if the first processes are lengthy (SRTF will preempt)
+prc = load_proc("inverse")
+p <- ggplot(prc,aes(cpu_time)) + geom_histogram()
+print(p)
+wk1 = load_workload("inverse")
+wk2 = load_workload("inverse2")
+
+
+p <- gen_density_by_scheduler(wk1,"tat") + theme(legend.position = "bottom")
+print(p)
+gen_density_by_scheduler(wk2,"tat")
+#wk2 is bugged -> tat is not counted from time of arrival
+

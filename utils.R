@@ -38,7 +38,7 @@ load_workloads <- function(names,seed=1){
 }
 
 load_proc<-function(wk_name){
-  proc_name = paste("./outputs_gen_info/",wk_name,"/1.cvs",sep="")
+  proc_name = paste("./outputs_gen_info/",wk_name,"/1.csv",sep="")
   df = read.table(proc_name,header=TRUE, sep="")
   df$workload=wk_name
   return(df)
