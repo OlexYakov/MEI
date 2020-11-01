@@ -4,7 +4,7 @@ source("graphs.R")
 # H1: under high CPU loads, the turnaround time of RR will be higher
 #analise process workload 
 pwk = load_procs(cpu_tests)
-p <- gen_proc_hbinmap(pwk) + theme(legend.position="top")
+p <- gen_proc_hbinmap(pwk)
 print(p)
 aggregate(pwk$cpu_time,list(pwk$workload),summary)
 
@@ -25,7 +25,9 @@ p <- ggplot(wks,aes(ready_wait_time,scheduler,color=workload)) +
       facet_wrap(vars(type),scales = "free")
 print(p)
 
-
+wk = wks[wks$workload=="cpu_tests_b3"]
+aggregate(wk$tat,list(wk$scheduler),kurtosis)
+aggregate(wk$tat,list(wk$scheduler),skewness)
 # H2 : FCFS despachar os processos mais rápido do que o RR
 wks = load_workload("big_and_fast")
 prc = load_proc("big_and_fast")
@@ -54,3 +56,18 @@ print(p)
 gen_density_by_scheduler(wk2,"tat")
 #wk2 is bugged -> tat is not counted from time of arrival
 
+# H6
+wk = load_workload("normal")
+
+ggplot(wk,aes(cpu_bursts_time)) + geom_histogram(binwidth = 5)
+
+p_tat <- gen_density_by_workload(wk,"tat") + theme(legend.position = "top")
+print(p_tat)
+p_rwt <- gen_density_by_workload(wk,"ready_wait_time") + theme(legend.position = "top")
+print(p_rwt)
+p_qq_tat <- gen_qq_from_wk(wk,"tat") 
+p_qq_rwt <- gen_qq_from_wk(wk,"ready_wait_time") + theme(legend.position = "top")
+print(p_qq_rwt)
+
+#seed comparison
+gen_compare_seeds_by_scheduler("cpu_tests_b1","tat")

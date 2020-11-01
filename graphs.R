@@ -28,21 +28,22 @@ gen_density_by_scheduler <- function(wk,var){
 gen_compare_seeds_by_scheduler <- function(wk_name,var,draw=TRUE){
   wks = list()
   seeds = seq(1,6)
-  for (i in seeds)
+  for (i in seeds){
     wks[[i]] <- load_workload(wk_name,seed=i)
-  
+  }
   wk = rbindlist(wks)
   
   p <- ggplot(wk,aes(.data[[var]],color=scheduler,fill=scheduler)) +
-    geom_density(alpha=0.1)
-    facet_wrap(vars(seed), scales = "free",labeller = label_both)
+    geom_density(alpha=0.1) +
+    facet_grid(vars(seed), scales = "free",labeller = label_both) +
+    theme(legend.position = "top")
   
   if (draw) print(p)
   return(p)
 }
 
 
-gen_density_by_workload <- function(wk_list,var,group=TRUE,draw=TRUE,save=FALSE,path="./graphs"){
+gen_density_by_workload <- function(wks,var,group=TRUE,draw=TRUE,save=FALSE,path="./graphs"){
   if (group){
     p <- ggplot(wks,aes(.data[[var]],color=scheduler,fill=scheduler)) + 
       geom_density(alpha=0.1) +

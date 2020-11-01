@@ -5,7 +5,7 @@ out_dir_simulator="outputs_sim"
 generator="python3 gen_workload.py"
 simulator="python3 simulator.py"
 #Round Robin Quantum Defautlt
-quantum=0.1
+quantum=1
 
 if [[ $1 == "--sim" ]];
 then
