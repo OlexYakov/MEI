@@ -5,8 +5,8 @@ out_dir_simulator="outputs_sim"
 generator="python3 gen_workload.py"
 simulator="python3 simulator.py"
 #Round Robin Quantum Defautlt
-quantum=1
-
+quantum=10
+seeds=2
 if [[ $1 == "--sim" ]];
 then
     echo "works"
@@ -25,7 +25,7 @@ else
     simulation_dir="$out_dir_simulator/$workload"
     mkdir -p $simulation_dir
 
-    for i in {1..6}; do
+    for ((i=0;i<$seeds;i++)); do
         input_file="$workload_dir/$i.csv"
 
         echo -en "\rGenerating workloads seed $i"

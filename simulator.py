@@ -45,8 +45,7 @@ def read_workload(file):
         while l:
             if l[0] != "#":
                 vals = [float(x) for x in l.split()]
-                procs.append(
-                    Process(pid=pid, arrival=vals[0], bursts=vals[1:]))
+                procs.append(Process(pid=pid, arrival=vals[0], bursts=vals[1:]))
                 pid += 1
             l = f.readline()
     return procs
@@ -66,8 +65,7 @@ class Simulator:
         if self.cpu_scheduler == "rr" and self.quantum is None:
             raise ValueError("Quantum parameter is required for round robin")
         if self.quantum is not None and self.quantum <= 0:
-            raise ValueError(
-                "Quantum parameter needs to be a positive (non-zero) value")
+            raise ValueError("Quantum parameter needs to be a positive (non-zero) value")
 
         self.processes = processes
         processes.sort(key=lambda x: x.arrival)
@@ -78,8 +76,7 @@ class Simulator:
         print("# Quantum: %s" % self.quantum, file=self.ofile)
 
         self.env = sim.Environment(trace=False)
-        self.cpu = sim.Resource(
-            "CPU", capacity=1, preemptive=self.cpu_scheduler == "srtf")
+        self.cpu = sim.Resource("CPU", capacity=1, preemptive=self.cpu_scheduler == "srtf")
         self.io = sim.Resource("I/O", capacity=1)
 
         ProcessArrival(simulator=self)
@@ -100,7 +97,6 @@ class ProcessArrival(sim.Component):
     def process(self):
         for p in self.simulator.processes:
             yield self.hold(till=p.arrival)
-            # print(f"{p.pid} arrived, time={self.simulator.env.now()}")
             ProcessComponent(simulator=self.simulator, pid=p.pid,
                              arrival=p.arrival, bursts=p.bursts)
 
@@ -116,16 +112,14 @@ class ProcessComponent(sim.Component):
 
     def process(self):
         b = self.bursts
-        # print(f"{self.pid} starting, time={self.simulator.env.now()}")
         clock_start = self.simulator.env.now()
 
         for i in range(1, len(b), 2):
-            yield from self.__schedule_cpu_burst(b[i-1])
+            yield from self.__schedule_cpu_burst(b[i - 1])
             yield from self.__schedule_io_burst(b[i])
         yield from self.__schedule_cpu_burst(b[-1])
 
         tat = self.simulator.env.now() - clock_start
-        # print(f"{self.pid} ended, time={self.simulator.env.now():.1f},tat={tat:.1f}")
         print(self.pid, end=" ", file=self.simulator.ofile)
         print(self.arrival, end=" ", file=self.simulator.ofile)
         print(np.sum(b[0:len(b):2]), end=" ", file=self.simulator.ofile)
@@ -181,10 +175,9 @@ class ProcessComponent(sim.Component):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        description="CPU and I/O scheduling simulator")
-    parser.add_argument(
-        "--cpu-scheduler", choices=["fcfs", "rr", "sjf", "srtf"], required=True, help="CPU scheduler")
+    parser = argparse.ArgumentParser(description="CPU and I/O scheduling simulator")
+    parser.add_argument("--cpu-scheduler",
+                        choices=["fcfs", "rr", "sjf", "srtf"], required=True, help="CPU scheduler")
     parser.add_argument("--quantum", type=float, default=None,
                         help="Quantum paramater (required only by round robin cpu scheduler)")
     parser.add_argument("--input-file", metavar="FILE", default=None,
@@ -200,3 +193,7 @@ if __name__ == '__main__':
     simulator = Simulator(processes=processes, cpu_scheduler=args.cpu_scheduler,
                           quantum=args.quantum, ofile=args.output_file)
     simulator.run()
+
+    # stats = simulator.cpu.print_statistics(as_str=True)
+    # for line in stats.split("\n"):
+    #     print("# " + line)

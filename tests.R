@@ -6,7 +6,7 @@ require(e1071)
 require(ggformula)
 require(cowplot)
 
-# wk = load_workload("default")
+#wk = load_workload("default")
 # 
 # aggregate(wk[6:8],list(wk$scheduler),mean)
 # # similar for mean etc..
@@ -51,3 +51,14 @@ require(cowplot)
 # wk_b1 = wks[wks$workload=="cpu_tests_b1"]
 # gen_density_by_scheduler(wk_b1,"ready_wait_time")
 
+total_time <- function (wk){
+  return(max(wk$arrival_time+wk$tat))
+}
+
+calc_usage <- function (wks){
+  for (wk in split(wks,wk$scheduler)) {
+    total_t <- total_time(wk)
+    print(paste(wk$scheduler[1]," ",total_t))
+    print(sum(wk$cpu_bursts_time)/total_t)
+    }
+}
