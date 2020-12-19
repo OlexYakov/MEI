@@ -9,7 +9,7 @@ quantum=10
 seeds=1
 if [[ $1 == "-h" ]];
 then
-    echo "./run_batch_simulations.sh [name] [nprocs] [mean_io_bursts] [mean_iat] [min_cpu] [max_cpu] [min_io] [max_io] [nseeds]"
+    echo "./run_batch_simulations.sh [name] [nprocs] [mean_io_bursts] [mean_iat] [min_cpu] [max_cpu] [min_io] [max_io] [nseeds] [quant]"
     exit
 fi
 
@@ -17,9 +17,9 @@ if [ $# -lt 8 ]
 then
     echo "Wrong amount of parameter passed"
 else
-    if [[ $# -eq 9 ]]; then
-        seeds=$9
-    fi
+    if [[ $# -ge 9 ]]; then seeds=$9; fi
+    if [[ $# -ge 10 ]]; then quantum=${10}; fi
+
     start=`date +%s`
     # workload="Procs$1IOBurst$2IAT$3MinCPU$4MaxCPU$5MinIO$6MaxIO$7"
     workload="$1"
@@ -28,7 +28,7 @@ else
     simulation_dir="$out_dir_simulator/$workload"
     mkdir -p $simulation_dir
 
-    for ((i=0;i<$seeds;i++)); do
+    for ((i=1;i<=$seeds;i++)); do
         input_file="$workload_dir/$i.csv"
 
         echo -en "\rGenerating workloads seed $i"
