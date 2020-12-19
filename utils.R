@@ -48,25 +48,22 @@ load_procs <- function(wk_names){
   return(rbindlist(lapply(wk_names,load_proc)))
 }
 
+total_time <- function (wk){
+  return(max(wk$arrival_time+wk$tat))
+}
 
-# workload = "default_1000"
-# 
-# data = list(NA)
-# length(data) = length(schedulers)
-# 
-# for (i in 1:length(data)){
-#   data[[i]] = load_first(workload,schedulers[i])
-# }
-# 
-# lapply(data,summary)
-# 
+calc_usage <- function (wks){
+  df <- data.frame(
+    "scheduler"=character(0),
+    "total"=double(0),
+    "usage"=double(0),
+    stringsAsFactors = FALSE);
 
-# hists = list(NA)
-# length(hists) = length(data)
-# 
-# for (i in 1:length(data)){
-#   hists[[i]] = hist(data[[i]]$tat,plot=FALSE)
-#   new = i != 1
-#   plot(hists[[i]],col=colors[i],add = new)
-# }
+  for (wk in split(wks,wk$scheduler)) {
+    total_t <- total_time(wk)
+    usage <- sum(wk$cpu_bursts_time)/total_t
+    df[nrow(df)+1,] <- list(wk$scheduler[1],total_t,usage)
+  }
+  return(df)
+}
 
