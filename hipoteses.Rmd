@@ -1,0 +1,53 @@
+---
+title: "Hipotese 1"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+```{r}
+source("utils.R")
+```
+
+u1 = AVG(SRTF(ready_wait_time/nbursts))
+u2 = AVG(FCFS(ready_wait_time/nbursts))
+
+H0: u1 = u2
+H1: u1 < u2
+
+#Load data
+
+```{r}
+wk = load_workload("test",all_seeds = TRUE)
+wk$scheduler = as.factor(wk$scheduler)
+wk$workload = as.factor(wk$workload)
+wk = select(wk,scheduler,seed,rw_per_nbursts)
+```
+
+#Agrupar os dados
+```{r}
+wka = aggregate(. ~scheduler+seed,data=wk,mean,na.rm=TRUE)
+srtf = wka[wka$scheduler=="SRTF",]
+fcfs = wka[wka$scheduler=="FCFS",]
+```
+
+
+# Testar normalidade
+Para n>30, pelo TLC podemos assumir normalidade.
+Caso contrário, podemos testar com, por exemplo, o Shapiro-test
+
+```{r}
+shapiro.test(fcfs$rw_per_nbursts)
+shapiro.test(srtf$rw_per_nbursts)
+
+ggqqplot(fcfs$rw_per_nbursts)
+ggqqplot(srtf$rw_per_nbursts)
+```
+
+
+#Paired T-test
+
+```{r}
+t.test(
+  srtf$rw_per_nbursts, fcfs$rw_per_nbursts, paired = TRUE, alternative = "less"
+)
+```
