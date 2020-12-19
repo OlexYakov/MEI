@@ -60,34 +60,37 @@ class Process:
 
 class Simulator:
     def __init__(self, processes, cpu_scheduler, quantum=None, ofile=None):
+        if cpu_scheduler == "rr" and quantum is None:
+            raise ValueError("Quantum parameter is required for round robin")
+        if quantum is not None and quantum <= 0:
+            raise ValueError("Quantum parameter needs to be a positive (non-zero) value")
+
         self.cpu_scheduler = cpu_scheduler
         self.quantum = quantum  # for round robin scheduler
-        if self.cpu_scheduler == "rr" and self.quantum is None:
-            raise ValueError("Quantum parameter is required for round robin")
-        if self.quantum is not None and self.quantum <= 0:
-            raise ValueError("Quantum parameter needs to be a positive (non-zero) value")
 
         self.processes = processes
         processes.sort(key=lambda x: x.arrival)
 
-        self.ofile = sys.stdout if ofile == None else open(ofile, "w")
-
-        print("# Cpu scheduler: %s" % self.cpu_scheduler, file=self.ofile)
-        print("# Quantum: %s" % self.quantum, file=self.ofile)
-
-        self.env = sim.Environment(trace=False)
-        self.cpu = sim.Resource("CPU", capacity=1, preemptive=self.cpu_scheduler == "srtf")
-        self.io = sim.Resource("I/O", capacity=1)
-
-        ProcessArrival(simulator=self)
-
-    def __del__(self):
-        if self.ofile != sys.stdout:
-            self.ofile.close()
+        self.ofile = ofile
+        self.of = None
 
     def run(self):
-        print("pid arrival_time cpu_bursts_time io_bursts_time bursts_time tat ready_wait_time io_wait_time", file=self.ofile)
+        self.of = sys.stdout if self.ofile is None else open(self.ofile, "w")
+
+        print("# Cpu scheduler: %s" % self.cpu_scheduler, file=self.of)
+        print("# Quantum: %s" % self.quantum, file=self.of)
+        print("pid arrival_time cpu_bursts_time io_bursts_time bursts_time tat ready_wait_time io_wait_time", file=self.of)
+
+        self.env = sim.Environment(trace=False)
+        self.cpu = sim.Resource(
+            "CPU", capacity=1, preemptive=self.cpu_scheduler == "srtf", env=self.env)
+        self.io = sim.Resource("I/O", capacity=1, env=self.env)
+        ProcessArrival(simulator=self)
         self.env.run()
+
+        if self.of is not None and self.of != sys.stdout:
+            self.of.close()
+            self.of = None
 
 
 class ProcessArrival(sim.Component):
@@ -120,14 +123,14 @@ class ProcessComponent(sim.Component):
         yield from self.__schedule_cpu_burst(b[-1])
 
         tat = self.simulator.env.now() - clock_start
-        print(self.pid, end=" ", file=self.simulator.ofile)
-        print(self.arrival, end=" ", file=self.simulator.ofile)
-        print(np.sum(b[0:len(b):2]), end=" ", file=self.simulator.ofile)
-        print(np.sum(b[1:len(b):2]), end=" ", file=self.simulator.ofile)
-        print(np.sum(b), end=" ", file=self.simulator.ofile)
-        print(tat, end=" ", file=self.simulator.ofile)
-        print(self.ready_wait_time, end=" ", file=self.simulator.ofile)
-        print(self.io_wait_time, end="\n", file=self.simulator.ofile)
+        print(self.pid, end=" ", file=self.simulator.of)
+        print(self.arrival, end=" ", file=self.simulator.of)
+        print(np.sum(b[0:len(b):2]), end=" ", file=self.simulator.of)
+        print(np.sum(b[1:len(b):2]), end=" ", file=self.simulator.of)
+        print(np.sum(b), end=" ", file=self.simulator.of)
+        print(tat, end=" ", file=self.simulator.of)
+        print(self.ready_wait_time, end=" ", file=self.simulator.of)
+        print(self.io_wait_time, end="\n", file=self.simulator.of)
 
     def __schedule_cpu_burst(self, burst):
         if self.simulator.cpu_scheduler == "fcfs":

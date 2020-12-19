@@ -43,7 +43,7 @@ if(length(args) == 7) {
 
 cat(sprintf("# num_procs = %d\n", num_procs))
 cat(sprintf("# mean_io_bursts = %g\n", mean_io_bursts))
-cat(sprintf("# mean_iat = %d\n", mean_iat))
+cat(sprintf("# mean_iat = %g\n", mean_iat))
 cat(sprintf("# min_CPU = %g\n", min_CPU))
 cat(sprintf("# max_CPU = %g\n", max_CPU))
 cat(sprintf("# min_IO = %g\n", min_IO))
