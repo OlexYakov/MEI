@@ -15,22 +15,31 @@ load_simulation_data_frames <- function(workload,scheduler)
 }
 
 
-load_one <- function(workload_name,scheduler,seed=1){
-  file_name = paste("outputs_sim/",workload_name,"/",scheduler,"_",seed,".txt",sep = "")
-  df = read.table(file = file_name,header=TRUE,quote="\"")
+load_one <- function(path, scheduler, seed = 1) {
+  file_name = paste(path, "/", scheduler, "_", seed, ".txt", sep = "")
+  df = read.table(file = file_name,header = TRUE,quote = "\"")
   df$scheduler = scheduler
-  df$workload = workload_name
-  df$seed=seed
-  return(df);
+  df$seed = seed
+  return(df)
+  
 }
 
-load_workload <- function(workload_name,seed=1){
-    dfull = data.frame()
-    for (sc in schedulers){
-      df = load_one(workload_name,sc,seed)
-      dfull = rbind(dfull,df)
+load_workload <- function(workload_name, all_seeds = FALSE) {
+  path = paste("outputs_sim/", workload_name,sep="")
+  dfull = data.frame()
+  nseeds = 1
+  if (all_seeds) {
+    nseeds = length(list.files(path))/4;
+  }
+  for (seed in 1:nseeds) {
+    for (sc in schedulers) {
+      df = load_one(path, sc, seed)
+      df$workload = workload_name
+      dfull = rbind(dfull, df)
     }
-    return(dfull)
+  }
+  dfull["tat_per_cpu_burst_time"] = dfull$tat / dfull$cpu_bursts_time
+  return(dfull)
 }
 
 load_workloads <- function(names,seed=1){
@@ -65,5 +74,9 @@ calc_usage <- function (wks){
     df[nrow(df)+1,] <- list(wk$scheduler[1],total_t,usage)
   }
   return(df)
+}
+
+per_scheduller <- function(wk,fun){
+  return(aggregate(wk,list(wk$scheduler),fun));
 }
 
