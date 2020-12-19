@@ -6,17 +6,20 @@ generator="python3 gen_workload.py"
 simulator="python3 simulator.py"
 #Round Robin Quantum Defautlt
 quantum=10
-seeds=2
-if [[ $1 == "--sim" ]];
+seeds=1
+if [[ $1 == "-h" ]];
 then
-    echo "works"
+    echo "./run_batch_simulations.sh [name] [nprocs] [mean_io_bursts] [mean_iat] [min_cpu] [max_cpu] [min_io] [max_io] [nseeds]"
     exit
 fi
 
-if [ $# != 8 ]
+if [ $# -lt 8 ]
 then
     echo "Wrong amount of parameter passed"
 else
+    if [[ $# -eq 9 ]]; then
+        seeds=$9
+    fi
     start=`date +%s`
     # workload="Procs$1IOBurst$2IAT$3MinCPU$4MaxCPU$5MinIO$6MaxIO$7"
     workload="$1"
