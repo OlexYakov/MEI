@@ -1,4 +1,6 @@
 require("data.table")
+require(dplyr)
+require(ggpubr)
 
 schedulers = c("FCFS","RR","SJF","SRTF")
 cpu_tests=c(
@@ -39,6 +41,7 @@ load_workload <- function(workload_name, all_seeds = FALSE) {
     }
   }
   dfull["tat_per_cpu_burst_time"] = dfull$tat / dfull$cpu_bursts_time
+  dfull["rw_per_nbursts"] = dfull$ready_wait_time / dfull$nbursts
   return(dfull)
 }
 
