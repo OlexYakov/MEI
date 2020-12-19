@@ -79,7 +79,7 @@ class Simulator:
 
         print("# Cpu scheduler: %s" % self.cpu_scheduler, file=self.of)
         print("# Quantum: %s" % self.quantum, file=self.of)
-        print("pid arrival_time cpu_bursts_time io_bursts_time bursts_time tat ready_wait_time io_wait_time", file=self.of)
+        print("pid arrival_time cpu_bursts_time io_bursts_time nbursts bursts_time tat ready_wait_time io_wait_time", file=self.of)
 
         self.env = sim.Environment(trace=False)
         self.cpu = sim.Resource(
@@ -127,6 +127,7 @@ class ProcessComponent(sim.Component):
         print(self.arrival, end=" ", file=self.simulator.of)
         print(np.sum(b[0:len(b):2]), end=" ", file=self.simulator.of)
         print(np.sum(b[1:len(b):2]), end=" ", file=self.simulator.of)
+        print(len(self.bursts), end=" ", file=self.simulator.of)
         print(np.sum(b), end=" ", file=self.simulator.of)
         print(tat, end=" ", file=self.simulator.of)
         print(self.ready_wait_time, end=" ", file=self.simulator.of)
