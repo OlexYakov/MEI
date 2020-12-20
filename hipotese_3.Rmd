@@ -6,5 +6,49 @@ output: html_notebook
 # Hipotese 3
 
 One common benchmark is the cpu utilization. To measure it we used 
-$$ \frac{cpu\_time}{max(arrival\_time+turnaround)}$$
+$$ usage = \frac{cpu\_time}{max(arrival\_time+turnaround)}$$
+
+We believe that SRTF will have an overall higher CPU usage because it will dispatch
+more processes to the io queue. On the other hand, schedulers like FCFS will take longer,
+having less cpu usage, because the processes will accumulate in the ready wait queue while
+the io queue is empty.
+
+To test this hypothesis we will use a paired T-test.
+
+Formaly, we have:
+$$
+H_0 = usage(SRTF) = usage(FCFS)\\
+H_1 = usage(SRTF) > usage(FCFS)
+$$
+
+Quick insight of the workload
+```{r}
+source("utils.R")
+wk_name = "h3"
+pr = load_proc(wk_name)
+ggplot(pr,aes(cpu_time,io_time)) + geom_hex()
+ggplot(pr,aes(cpu_per_burst,cpu_time)) + geom_hex()
+ggplot(pr,aes(cpu_per_burst,nbursts)) + geom_hex()
+ggplot(pr,aes(cpu_time,nbursts)) + geom_hex()
+```
+
+
+Data preparation
+
+```{r}
+wk = load_workload(wk_name,all_seeds = TRUE)
+wk = calc_usage(wk)
+```
+Even tough our n>30, we will still check normality (in the case that we change our data in the future)
+
+```{r}
+fcfs = wk[wk$scheduler=="FCFS",]
+srtf = wk[wk$scheduler=="SRTF",]
+
+shapiro.test(fcfs$usage)
+ggqqplot(fcfs$usage)
+
+shapiro.test(srtf$usage)
+ggqqplot(srtf$usage)
+```
 
