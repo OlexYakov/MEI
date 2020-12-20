@@ -1,0 +1,16 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Hipotese 2
+Achamos que, para uma workload mista com pequenos processos de muitos burst misturados
+com processeos demorados, os algoritmos preemprivos vão ter uma responsividade muito 
+maior que os algoritmos não-preemptivos.
+
+(pensar melhor) além disso, achamos que em certas circunstancias (io grande)
+os algoritmos que prioritizam os processos mais curtos consigam acabar a workload
+mais rápido.
+
+## Preparação dos dados
+Para este cenário usamos uma workload mista. Para tal gerámos duas workloads e juntámos
