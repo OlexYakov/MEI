@@ -30,10 +30,6 @@ def ensure_created(name):
     return dir
 
 
-def compare_by_first(a, b):
-    return a.split()[0] < b.split()[0]
-
-
 wk_name1 = sys.argv[1]
 wk_dir1 = check_exists(wk_name1)
 wk_name2 = sys.argv[2]
@@ -48,7 +44,7 @@ for fname in os.listdir(wk_dir1):
 
     lines = f1.readlines()
     lines.extend([i for i in f2.readlines() if "#" not in i])
-    lines.sort(key=cmp_to_key(compare_by_first))
+    lines.sort(key=lambda s: True if "#" in s else (float)(s.split()[0]))
 
     fm.writelines(lines)
 
