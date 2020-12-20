@@ -26,14 +26,20 @@ load_one <- function(path, scheduler, seed = 1) {
   
 }
 
-load_workload <- function(workload_name, all_seeds = FALSE) {
-  path = paste("outputs_sim/", workload_name,sep="")
+load_workload <- function(workload_name, all_seeds = FALSE, seed=1) {
+  path = paste("outputs_sim/", workload_name, sep = "")
   dfull = data.frame()
   nseeds = 1
   if (all_seeds) {
-    nseeds = length(list.files(path))/4;
-  }
-  for (seed in 1:nseeds) {
+    nseeds = length(list.files(path)) / 4
+    for (seed in 1:nseeds) {
+      for (sc in schedulers) {
+        df = load_one(path, sc, seed)
+        df$workload = workload_name
+        dfull = rbind(dfull, df)
+      }
+    }
+  } else {
     for (sc in schedulers) {
       df = load_one(path, sc, seed)
       df$workload = workload_name
@@ -49,10 +55,11 @@ load_workloads <- function(names,seed=1){
   return(rbindlist(lapply(names,load_workload,seed=seed)))
 }
 
-load_proc<-function(wk_name){
-  proc_name = paste("./outputs_gen_info/",wk_name,"/1.csv",sep="")
+load_proc<-function(wk_name,seed=1){
+  proc_name = paste("./outputs_gen_info/",wk_name,"/",seed,".csv",sep="")
   df = read.table(proc_name,header=TRUE, sep="")
   df$workload=wk_name
+  df$cpu_per_burst = df$cpu_time / df$nbursts
   return(df)
 }
 
