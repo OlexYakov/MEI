@@ -78,12 +78,17 @@ calc_usage <- function (wks){
     "usage"=double(0),
     stringsAsFactors = FALSE);
 
-  for (wk in split(wks,wk$scheduler)) {
-    total_t <- total_time(wk)
-    usage <- sum(wk$cpu_bursts_time)/total_t
-    df[nrow(df)+1,] <- list(wk$scheduler[1],total_t,usage)
-  }
-  return(df)
+#   for (wk in split(wks,wk$scheduler)) {
+#     total_t <- total_time(wk)
+#     usage <- sum(wk$cpu_bursts_time)/total_t
+#     df[nrow(df)+1,] <- list(wk$scheduler[1],total_t,usage)
+#   }
+#   return(df)
+  
+  wk = wks %>%
+    group_by(seed,scheduler) %>%
+    summarise(total=max(arrival_time+tat),usage= sum(cpu_bursts_time/max(arrival_time+tat)))
+  return(wk)
 }
 
 per_scheduller <- function(wk,fun){
