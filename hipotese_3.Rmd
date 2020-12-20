@@ -1,0 +1,10 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Hipotese 3
+
+One common benchmark is the cpu utilization. To measure it we used 
+$$ \frac{cpu\_time}{max(arrival\_time+turnaround)}$$
+

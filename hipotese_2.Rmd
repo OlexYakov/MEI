@@ -4,11 +4,6 @@ output: html_notebook
 ---
 # Hipotese 2
 
-
-#(pensar melhor) além disso, achamos que em certas circunstancias (io grande)
-#os algoritmos que prioritizam os processos mais curtos consigam acabar a workload
-#mais rápido.
-
 We think that, for a mixed workload with multiple short bursts processes and some
 heavy processes, the scheduling algorithms that prioritize short processes will
 be much more responsive.
@@ -50,19 +45,75 @@ H1 : Existe 1 diferente
 ## Preparação dos dados
 Quick insight of the workload
 ```{r}
-require("utils.R")
-pr = load_proc("mixed_h2")
+source("utils.R")
+wk_name = "mixed_h2_240"
+pr = load_proc(wk_name)
 ggplot(pr,aes(cpu_time,io_time)) + geom_hex()
 ggplot(pr,aes(cpu_per_burst,cpu_time)) + geom_hex()
 ggplot(pr,aes(cpu_per_burst,nbursts)) + geom_hex()
 ggplot(pr,aes(cpu_time,nbursts)) + geom_hex()
 ```
+## Example input for one seed
+
 ```{r}
-wk = load_workload("mixed_h2")
+wk = load_workload(wk_name)
 wk %>%
   select(scheduler, ready_wait_time, rw_per_nbursts) %>%
   group_by(scheduler) %>%
   summarise_all(mean)
 ```
 
+## Run OneWay ANOVA
+```{r}
+wk = load_workload(wk_name,all_seeds = TRUE)
+wk = wk %>%
+  select(scheduler,seed, rw_per_nbursts) %>%
+  group_by(seed,scheduler) %>%
+  summarise_all(mean)
+print(wk)
+step = 60
+fcfs = filter(wk,scheduler == "FCFS" & seed <= step)
+sjf  = filter(wk,scheduler == "SJF" & seed > step & seed <= 2*step)
+rr   = filter(wk,scheduler == "RR" & seed > 2*step & seed <= 3*step)
+srtf = filter(wk,scheduler == "SRTF" & seed > 3*step & seed <= 4*step)
+
+wk = rbind(fcfs,sjf,rr,srtf)
+boxplot(rw_per_nbursts ~ scheduler, wk)
+```
+
+TODO: explain outliers
+
+```{r}
+aov.out = aov(rw_per_nbursts ~ scheduler, data=wk)
+summary(aov.out)
+```
+Lets check the assumptions:
+
+```{r}
+ggqqplot(aov.out$res)
+shapiro.test(aov.out$res)
+bartlett.test(rw_per_nbursts ~ scheduler, data = wk)
+```
+
+As neither of the assumptions was met, we cannot take conclusions from the one way ANOVA test. We will use the non-parametric Kruskal-Wallis rank sum test:
+```{r}
+kruskal.test(rw_per_nbursts ~ scheduler, data=wk)
+```
+
+As the p-value is < 0.05, we reject the null hypotesys. Post-hoc analysis can be 
+done with dunn's test
+
+```{r}
+library(dunn.test)
+dunn.test(wk$rw_per_nbursts,g=wk$scheduler,method="bonferroni")
+```
+From these tests we conclude that there are significant differences
+between:
+  FCFS and all others schedulers: ~
+  RR is not unlike SRTF and SJF (at a 0.05 significance level)
+
+```{r}
+ggplot(wk, aes(rw_per_nbursts, color=scheduler)) + geom_density()
+ggplot(wk, aes(rw_per_nbursts, color=scheduler)) + geom_boxplot()
+```
 
