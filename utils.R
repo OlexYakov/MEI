@@ -48,6 +48,7 @@ load_workload <- function(workload_name, all_seeds = FALSE, seed=1) {
   }
   dfull["tat_per_cpu_burst_time"] = dfull$tat / dfull$cpu_bursts_time
   dfull["rw_per_nbursts"] = dfull$ready_wait_time / dfull$nbursts
+  dfull["end_time"] = dfull$arrival_time+dfull$tat
   return(dfull)
 }
 
@@ -87,7 +88,11 @@ calc_usage <- function (wks){
   
   wk = wks %>%
     group_by(seed,scheduler) %>%
-    summarise(total=max(arrival_time+tat),usage= sum(cpu_bursts_time/max(arrival_time+tat)))
+    summarise(
+      usage= sum(cpu_bursts_time)/max(arrival_time+tat),
+      sum_burst=sum(cpu_bursts_time),
+      
+      last=max(arrival_time+tat))
   return(wk)
 }
 
