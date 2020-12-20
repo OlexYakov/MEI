@@ -2,15 +2,67 @@
 title: "R Notebook"
 output: html_notebook
 ---
-
 # Hipotese 2
-Achamos que, para uma workload mista com pequenos processos de muitos burst misturados
-com processeos demorados, os algoritmos preemprivos vão ter uma responsividade muito 
-maior que os algoritmos não-preemptivos.
 
-(pensar melhor) além disso, achamos que em certas circunstancias (io grande)
-os algoritmos que prioritizam os processos mais curtos consigam acabar a workload
-mais rápido.
+
+#(pensar melhor) além disso, achamos que em certas circunstancias (io grande)
+#os algoritmos que prioritizam os processos mais curtos consigam acabar a workload
+#mais rápido.
+
+We think that, for a mixed workload with multiple short bursts processes and some
+heavy processes, the scheduling algorithms that prioritize short processes will
+be much more responsive.
+
+To measure responsiveness we will use the average of ready_wait_time/burst.
+
+To create this workload we created two workloads with the following parameters:
+TODO: tabela
+## long_solo
+num_procs = 5
+mean_io_bursts = 5
+mean_iat = 10
+min_CPU = 10
+max_CPU = 20
+min_IO = 10
+max_IO = 20
+## short_burst
+num_procs = 100
+mean_io_bursts = 100
+mean_iat = 10
+min_CPU = 0.1
+max_CPU = 1
+min_IO = 1
+max_IO = 2
+
+We then merged the two workloads by time of arrival of each process.
+
+We generated 120 different seeds, 30 for each scheduler, to ensure that the samples are independent.
+
+To test this we will first use an One-Way ANOVA test, defined as follows:
+dependent variable : AVG(SCHEDULER(ready_wait_time/burst))
+independent variable: scheduler
+levels: FCFS, RR, SJF, SRTF
+
+H0 : Ufcfs = Urr = ...
+H1 : Existe 1 diferente
+
 
 ## Preparação dos dados
-Para este cenário usamos uma workload mista. Para tal gerámos duas workloads e juntámos
+Quick insight of the workload
+```{r}
+require("utils.R")
+pr = load_proc("mixed_h2")
+ggplot(pr,aes(cpu_time,io_time)) + geom_hex()
+ggplot(pr,aes(cpu_per_burst,cpu_time)) + geom_hex()
+ggplot(pr,aes(cpu_per_burst,nbursts)) + geom_hex()
+ggplot(pr,aes(cpu_time,nbursts)) + geom_hex()
+```
+```{r}
+wk = load_workload("mixed_h2")
+wk %>%
+  select(scheduler, ready_wait_time, rw_per_nbursts) %>%
+  group_by(scheduler) %>%
+  summarise_all(mean)
+```
+
+
