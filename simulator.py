@@ -127,7 +127,7 @@ class ProcessComponent(sim.Component):
         print(self.arrival, end=" ", file=self.simulator.of)
         print(np.sum(b[0:len(b):2]), end=" ", file=self.simulator.of)
         print(np.sum(b[1:len(b):2]), end=" ", file=self.simulator.of)
-        print(len(self.bursts), end=" ", file=self.simulator.of)
+        print(len(self.bursts) // 2 + 1, end=" ", file=self.simulator.of)
         print(np.sum(b), end=" ", file=self.simulator.of)
         print(tat, end=" ", file=self.simulator.of)
         print(self.ready_wait_time, end=" ", file=self.simulator.of)
