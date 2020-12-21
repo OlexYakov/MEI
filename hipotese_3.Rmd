@@ -7,11 +7,9 @@ output: html_notebook
 
 One common benchmark is the cpu utilization. To measure it we used 
 $$ usage = \frac{cpu\_time}{max(arrival\_time+turnaround)}$$
-
-We believe that SRTF will have an overall higher CPU usage because it will dispatch
-more processes to the io queue. On the other hand, schedulers like FCFS will take longer,
-having less cpu usage, because the processes will accumulate in the ready wait queue while
-the io queue is empty.
+We believe that, for a system with mixed short and long processes, SRTF will have an overall higher CPU usage because it will dispatch
+more processes to the io queue. On the other hand, schedulers like FCFS will take longer to complete the workload,
+having less cpu usage, because the processes will accumulate in the ready wait queue while the io queue is empty.
 
 To test this hypothesis we will use a paired T-test.
 
@@ -50,5 +48,35 @@ ggqqplot(fcfs$usage)
 
 shapiro.test(srtf$usage)
 ggqqplot(srtf$usage)
+
 ```
+The T-test yielded the following results:
+
+```{r}
+t.test(
+  fcfs$usage, srtf$usage, paired = TRUE, alternative = "less"
+)
+```
+
+As expected, the p-value is lower than our confidence level of 0.05, so we reject the null hypothesis, meaning 
+the average of used cpu is significantly different between the FCFS and SRTF.
+
+## Analysis
+The workloads were formed by merging two runs of the generator script. Our idea was the following: schedulers that
+switched contexts more often would offload more processes to the io queue. Ideally, both the cpu and the IO controller
+would be working at the same time, but in a first come first served fashion the queue would build up on the cpu/io queue, depending
+on which was slower. Following this logic we can broaden out hypothesis and reformulate it:
+$$
+H_0 = usage(SRTF) = usage(SJF) = usage(RR)\\
+H_1 = \exists{i,j}: usage_i \neq usage_j
+$$
+
+Testing 
+
+These conclusions become more apparent with the following visualization:
+
+```{r}
+ggplot(wk,aes(usage,color=scheduler)) + geom_density()
+```
+
 
