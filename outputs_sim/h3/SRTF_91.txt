@@ -1,0 +1,4 @@
+# Cpu scheduler: srtf
+# Quantum: None
+pid arrival_time cpu_bursts_time io_bursts_time nbursts bursts_time tat ready_wait_time io_wait_time
+1 2.243988339994251 23.301195975913735 46.0 47 69.30119597591373 73.9670763683153 0.12768719609702117 50.538193196304555
