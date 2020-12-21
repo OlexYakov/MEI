@@ -21,6 +21,9 @@ $$
 
 Quick insight of the workload
 ```{r}
+library(tidyverse)
+library(ggpubr)
+library(rstatix)
 source("utils.R")
 wk_name = "h3"
 pr = load_proc(wk_name)
@@ -71,7 +74,71 @@ H_0 = usage(SRTF) = usage(SJF) = usage(RR)\\
 H_1 = \exists{i,j}: usage_i \neq usage_j
 $$
 
-Testing 
+Quick visualization with boxplots:
+```{r}
+wk = filter(wk,scheduler != "FCFS")
+wk$scheduler = as.factor(wk$scheduler)
+ggboxplot(wk,x="scheduler",y="usage")
+```
+## checking assumtions
+
+### outliers
+
+```{r}
+
+wk %>%
+  group_by(scheduler) %>%
+  identify_outliers(usage)
+```
+ As seed 91 had one extreme outlier (further research necessary) we removed that seed from the workload
+ 
+ ### Shapiro test
+```{r}
+wk <- filter(wk,seed != 91)
+
+wk %>% 
+  group_by(scheduler) %>%
+  shapiro_test(usage)
+```
+ 
+as p > 0.05 for all the schedulers, we can assume normality.
+
+```{r}
+ggqqplot(wk,"usage",facet.by = "scheduler")
+```
+## Repeated measures ANOVA
+ Check sphericity (variance of the differences between groups should be equal)
+```{r}
+wk <- load_workload(wk_name, all_seeds = TRUE) %>% filter(seed != 91)
+wk <- calc_usage(wk) %>%
+  filter(scheduler != "FCFS") %>%
+  convert_as_factor(seed,scheduler) %>% 
+  ungroup() %>% 
+  select(seed,scheduler,usage)
+
+res.aov <- anova_test(data=wk, dv=usage, wid=seed, within = scheduler)
+get_anova_table(res.aov)
+```
+
+```{r}
+pwc <- wk %>%
+  pairwise_t_test(
+    usage ~ scheduler, paired = TRUE, p.adjust.method = "bonferroni"
+  )
+pwc
+```
+
+```{r}
+bxp <- ggboxplot(wk, x = "scheduler", y = "usage", add = "point")
+pwc <- pwc %>% add_xy_position(x = "scheduler")
+bxp + 
+  stat_pvalue_manual(pwc) +
+  labs(
+    subtitle = get_test_label(res.aov, detailed = TRUE),
+    caption = get_pwc_label(pwc)
+  )
+```
+
 
 These conclusions become more apparent with the following visualization:
 

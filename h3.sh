@@ -2,7 +2,7 @@
 
 echo "Generating third hypotesis"
 
-seeds=35
+seeds=120
 first="h3_long_solo_$seeds"
 second="h3_short_bursts_$seeds"
 merged="h3"
