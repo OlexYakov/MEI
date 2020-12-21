@@ -46,7 +46,7 @@ load_workload <- function(workload_name, all_seeds = FALSE, seed=1) {
       dfull = rbind(dfull, df)
     }
   }
-  dfull["tat_per_cpu_burst_time"] = dfull$tat / dfull$cpu_bursts_time
+  dfull["tat_per_cpu"] = dfull$tat / dfull$cpu_bursts_time
   dfull["rw_per_nbursts"] = dfull$ready_wait_time / dfull$nbursts
   dfull["end_time"] = dfull$arrival_time+dfull$tat
   return(dfull)
