@@ -65,7 +65,7 @@ wk %>%
 
 ## Run OneWay ANOVA
 ```{r}
-wk = load_workload(wk_name,all_seeds = TRUE)
+wk = load_workload(wk_name,all_seeds = TRUE,assert_count = 105)
 wk = wk %>%
   select(scheduler,seed, rw_per_nbursts) %>%
   group_by(seed,scheduler) %>%
