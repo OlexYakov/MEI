@@ -5,12 +5,15 @@ output:
   html_notebook: default
 ---
 ```{r}
+library(tidyverse)
+library(ggpubr)
+library(rstatix)
 source("utils.R")
 ```
 # Hipotese 1
 
-u1 = AVG(SRTF(ready_wait_time/nbursts))
-u2 = AVG(FCFS(ready_wait_time/nbursts))
+u1 = AVG(SRTF(tat_per_cpu))
+u2 = AVG(FCFS(tat_per_cpu))
 
 H0: u1 = u2
 H1: u1 < u2
@@ -21,7 +24,7 @@ H1: u1 < u2
 wk = load_workload("h1",all_seeds = TRUE)
 wk$scheduler = as.factor(wk$scheduler)
 wk$workload = as.factor(wk$workload)
-wk = select(wk,scheduler,seed,rw_per_nbursts)
+wk = select(wk,scheduler,seed,tat_per_cpu)
 ```
 
 #Agrupar os dados
@@ -37,11 +40,11 @@ Para n>30, pelo TLC podemos assumir normalidade.
 Caso contrário, podemos testar com, por exemplo, o Shapiro-test
 
 ```{r}
-shapiro.test(fcfs$rw_per_nbursts)
-shapiro.test(srtf$rw_per_nbursts)
+shapiro.test(fcfs$tat_per_cpu)
+shapiro.test(srtf$tat_per_cpu)
 
-ggqqplot(fcfs$rw_per_nbursts)
-ggqqplot(srtf$rw_per_nbursts)
+ggqqplot(fcfs$tat_per_cpu)
+ggqqplot(srtf$tat_per_cpu)
 ```
 
 
@@ -49,9 +52,14 @@ ggqqplot(srtf$rw_per_nbursts)
 
 ```{r}
 t.test(
-  srtf$rw_per_nbursts, fcfs$rw_per_nbursts, paired = TRUE, alternative = "less"
+  srtf$tat_per_cpu, fcfs$tat_per_cpu, paired = TRUE, alternative = "less"
 )
 ```
+```{r}
+gen_density_by_scheduler(wk,"tat_per_cpu")
+```
+
+
 # Hipotese 1.1
 
 Achamos que não vai haver diferença significativa entre SJF e SRTF, mesmo um sendo preenptive e o outro não
@@ -65,9 +73,20 @@ H1: u1 != u2
 
 ```{r}
 sjf = wka[wka$scheduler=="SJF",]
-
+shapiro.test(sjf$tat_per_cpu)
 t.test(
-  srtf$rw_per_nbursts, sjf$rw_per_nbursts, paired = TRUE
+  srtf$tat_per_cpu, sjf$tat_per_cpu, paired = TRUE
 )
+
+wk = load_workload("h1",all_seeds=TRUE)
+
+# wk %>%
+# pairwise_t_test(
+#   tat_per_cpu ~ scheduler, paired = TRUE, p.adjust.method = "bonferroni"
+# )
+```
+
+```{r}
+
 ```
 
