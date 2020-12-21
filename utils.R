@@ -26,7 +26,7 @@ load_one <- function(path, scheduler, seed = 1) {
   
 }
 
-load_workload <- function(workload_name, all_seeds = FALSE, seed=1) {
+load_workload <- function(workload_name, all_seeds = FALSE, seed=1,assert_count=NA) {
   path = paste("outputs_sim/", workload_name, sep = "")
   dfull = data.frame()
   nseeds = 1
@@ -36,10 +36,21 @@ load_workload <- function(workload_name, all_seeds = FALSE, seed=1) {
       for (sc in schedulers) {
         df = load_one(path, sc, seed)
         df$workload = workload_name
-        dfull = rbind(dfull, df)
+        if (!is.na(assert_count) && count(df) != assert_count) {
+          print(paste(
+            "Seed",
+            seed,
+            "did not match expected count for",
+            workload_name,
+            sc,
+            sep = " "
+          ))
+        } else
+          dfull = rbind(dfull, df)
       }
     }
-  } else {
+  } else
+  {
     for (sc in schedulers) {
       df = load_one(path, sc, seed)
       df$workload = workload_name

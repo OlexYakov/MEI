@@ -37,10 +37,10 @@ ggplot(pr,aes(cpu_time,nbursts)) + geom_hex()
 Data preparation
 
 ```{r}
-wk = load_workload(wk_name,all_seeds = TRUE)
+wk = load_workload(wk_name,all_seeds = TRUE) %>% filter(seed != 91)
 wk = calc_usage(wk)
 ```
-Even tough our n>30, we will still check normality (in the case that we change our data in the future)
+Even tough our n > 30, we will still check normality (in the case that we change our data in the future)
 
 ```{r}
 fcfs = wk[wk$scheduler=="FCFS",]
@@ -86,8 +86,9 @@ ggboxplot(wk,x="scheduler",y="usage")
 
 ```{r}
 
-wk %>%
+t <- wk %>%
   group_by(scheduler) %>%
+  select(scheduler,seed,usage) %>%
   identify_outliers(usage)
 ```
  As seed 91 had one extreme outlier (further research necessary) we removed that seed from the workload
@@ -143,7 +144,11 @@ bxp +
 These conclusions become more apparent with the following visualization:
 
 ```{r}
+wk = load_workload("h3",all_seeds = TRUE)
+wk = calc_usage(wk) %>% filter(seed != 91)
 ggplot(wk,aes(usage,color=scheduler)) + geom_density()
+ggplot(wk, aes(x=seed, y=usage, color=scheduler)) + geom_line() + geom_point()
+ggplot(wk, aes(x=seed, y=usage, color=scheduler)) + geom_line(alpha=0.2) + geom_point(alpha=0.2) + geom_smooth(se=FALSE)
 ```
 
 
